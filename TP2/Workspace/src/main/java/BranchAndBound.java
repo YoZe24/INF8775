@@ -11,7 +11,6 @@ public class BranchAndBound {
         int v = Utils.getNodeMaxDegree(graph);
         C.put(v, 0);
         nodes_stack.push(C);
-//      HashSet<HashMap<Integer, Integer>> visited = new HashSet<>();
 
         while(!nodes_stack.isEmpty()){
             C = nodes_stack.pop();
@@ -23,15 +22,10 @@ public class BranchAndBound {
                     UB = KC;
                 }
             }
-            else{
-                if (KC - 1 < UB){
-                    for (HashMap<Integer, Integer> CPrime : exploreNodes(graph, C)) {
-                        nodes_stack.push(CPrime);
-//                      if (!visited.contains(CPrime)){
-//                          nodes_stack.push(CPrime);
-//                          visited.add(CPrime);
-//                      }
-                    }
+            //TODO : Verify KC or KC-1
+            else if (KC < UB){
+                for (HashMap<Integer, Integer> CPrime : exploreNodes(graph, C)) {
+                    nodes_stack.push(CPrime);
                 }
             }
         }
@@ -41,21 +35,35 @@ public class BranchAndBound {
 
     public static Iterable<HashMap<Integer, Integer>> exploreNodes(HashMap<Integer, HashSet<Integer>> graph, HashMap<Integer, Integer> C){
         List<HashMap<Integer, Integer>> list = new ArrayList<>();
+        Set<Integer> neighbors_colors = new HashSet<>();
+
         int v = Greedy.greedyChoice(graph,C);
         int KC = Utils.nbColors(C);
-        for (int i = 0; i <= KC; i++) {
-            boolean colorValid = true;
-            for (int neighbor : graph.get(v)) {
-                if (i == C.get(neighbor)) {
-                    colorValid = false;
-                }
-            }
-            if (colorValid){
+
+        for(int neighbor : graph.get(v))
+            neighbors_colors.add(C.get(neighbor));
+
+        for(int i = 0 ; i <= KC ; i++){
+            if(!neighbors_colors.contains(i)){
                 HashMap<Integer, Integer> CPrime = new HashMap<>(C);
                 CPrime.put(v, i);
                 list.add(CPrime);
             }
         }
+
+//        for (int i = 0; i <= KC; i++) {
+//            boolean colorValid = true;
+//            for (int neighbor : graph.get(v)) {
+//                if (i == C.get(neighbor)) {
+//                    colorValid = false;
+//                }
+//            }
+//            if (colorValid){
+//                HashMap<Integer, Integer> CPrime = new HashMap<>(C);
+//                CPrime.put(v, i);
+//                list.add(CPrime);
+//            }
+//        }
 
         return list;
     }
