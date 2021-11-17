@@ -19,11 +19,10 @@ public class Tabou {
             HashMap<Integer, Integer> current = new HashMap<>(reduced);
 
             K = K - 1;
-
             int currentConflicts = Utils.nbConflicts(graph,current);
+            int nStop = 0;
             tabouList = initializeTabouList(n);
 
-            int nStop = 0;
             while(Utils.nbConflicts(graph, current) > 0){
                 updateTabouList();
                 HashMap<Integer, Integer> bestNeighbor = Utils.newColoration(n);
@@ -56,7 +55,6 @@ public class Tabou {
                     tabouList.get(changedNode).put(changedColor, (a*c) + g);
 
                 current = bestNeighbor;
-//                printTabou();
 
                 if (bestNeighborConflicts < currentConflicts){
                     currentConflicts = bestNeighborConflicts;
@@ -73,7 +71,6 @@ public class Tabou {
             }
 
             CStar = new HashMap<>(current);
-
             colors = new HashMap<>(CStar);
         }
     }
@@ -143,29 +140,10 @@ public class Tabou {
                     newColoration.put(item.getKey(), i);
                     neighbors.add(newColoration);
 
-//                    Random random = new Random();
-//                    int a = 2;
-//                    int g = random.nextInt(10) + 1;
-//                    int c = Utils.nbConflicts(graph, newColoration);
-//
-//                    int l = (a * c) + g;
-//                    tabouList.get(item.getKey()).put(i, l);
                 }
             }
         }
         return neighbors;
     }
 
-//    public static int nbConflicts(HashMap<Integer, HashSet<Integer>> graph, HashMap<Integer, Integer> coloration){
-//        int n = 0;
-//        for (Map.Entry<Integer, HashSet<Integer>> item : graph.entrySet()) {
-//            int colorItem = coloration.get(item.getKey());
-//            for (int neighbor : item.getValue()) {
-//                int colorNeighbor = coloration.get(neighbor);
-//                if (colorItem == colorNeighbor) n++;
-//            }
-//        }
-//
-//        return n/2;
-//    }
 }

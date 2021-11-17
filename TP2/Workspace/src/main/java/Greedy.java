@@ -19,7 +19,6 @@ public class Greedy {
     }
 
     public static Integer   greedyChoice(HashMap<Integer, HashSet<Integer>> graph, HashMap<Integer, Integer> coloration){
-        HashMap<Integer, Integer> dsatValues = new HashMap<>();
         int maxSat = -1;
         int maxSatDegree = -1;
         int maxNode = -1;
@@ -40,23 +39,9 @@ public class Greedy {
                     maxNode = item.getKey();
                     maxSatDegree = item.getValue().size();
                 }
-//                maxSat = Math.max(maxSat, dsat);
-//                dsatValues.put(item.getKey(),dsat);
             }
         }
 
-//        HashSet<Integer> toRemove = new HashSet<>();
-//        for (Map.Entry<Integer, Integer> dsatValue : dsatValues.entrySet()) {
-//            if (dsatValue.getValue() < maxSat) {
-//                toRemove.add(dsatValue.getKey());
-//            }
-//        }
-//
-//        for (int n : toRemove) {
-//            dsatValues.remove(n);
-//        }
-//
-//        return Utils.getNodeMaxDegreeInList(graph, dsatValues.keySet());
         return maxNode;
     }
 

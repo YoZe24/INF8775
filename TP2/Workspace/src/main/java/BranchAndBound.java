@@ -51,20 +51,6 @@ public class BranchAndBound {
             }
         }
 
-//        for (int i = 0; i <= KC; i++) {
-//            boolean colorValid = true;
-//            for (int neighbor : graph.get(v)) {
-//                if (i == C.get(neighbor)) {
-//                    colorValid = false;
-//                }
-//            }
-//            if (colorValid){
-//                HashMap<Integer, Integer> CPrime = new HashMap<>(C);
-//                CPrime.put(v, i);
-//                list.add(CPrime);
-//            }
-//        }
-
         return list;
     }
 }
