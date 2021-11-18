@@ -15,7 +15,7 @@ public class Tabou {
         HashMap<Integer, Integer> colors = new HashMap<>(CStar);
 
         while(true){
-            HashMap<Integer, Integer> reduced = reduceColors(graph,colors,K);
+            HashMap<Integer, Integer> reduced = reduceColors(graph,colors,K); //O(N^2)
             HashMap<Integer, Integer> current = new HashMap<>(reduced);
 
             K = K - 1;
@@ -23,18 +23,18 @@ public class Tabou {
             int nStop = 0;
             tabouList = initializeTabouList(n);
 
-            while(Utils.nbConflicts(graph, current) > 0){
+            while(Utils.nbConflicts(graph, current) > 0){//O(N * N * E) = O(E*N^2) avec E ~ N²
                 updateTabouList();
                 HashMap<Integer, Integer> bestNeighbor = Utils.newColoration(n);
                 int bestNeighborConflicts = Integer.MAX_VALUE;
                 int changedNode = -1;
                 int changedColor = -1;
-                for (Map.Entry<Integer, Integer> item : current.entrySet()) {
-                    for (int i = 0; i < K ; i++) {
+                for (Map.Entry<Integer, Integer> item : current.entrySet()) { //O(N)
+                    for (int i = 0; i < K ; i++) { //O(N)
                         if (i != item.getValue() && !tabouList.get(item.getKey()).containsKey(i)){
                             HashMap<Integer, Integer> newColoration = new HashMap<>(current);
                             newColoration.put(item.getKey(), i);
-                            int neighborConflicts = Utils.nbConflicts(graph,newColoration);
+                            int neighborConflicts = Utils.nbConflicts(graph,newColoration); //O(E)
 
                             if (neighborConflicts < bestNeighborConflicts) {
 
@@ -64,8 +64,7 @@ public class Tabou {
                     nStop++;
                 }
 
-                if (nStop > 5000){
-                    System.out.println("Nb conflict : "+Utils.nbConflicts(graph,CStar));
+                if (nStop > 200){
                     return CStar;
                 }
             }
@@ -101,7 +100,7 @@ public class Tabou {
 
     public static ConcurrentHashMap<Integer, ConcurrentHashMap<Integer, Integer>> initializeTabouList(int n){
         ConcurrentHashMap<Integer, ConcurrentHashMap<Integer, Integer>> list = new ConcurrentHashMap<>();
-        for (int i = 0; i < n; i++) {
+        for (int i = 1; i <= n; i++) {
             list.put(i, new ConcurrentHashMap<>());
         }
         return list;

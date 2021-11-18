@@ -18,7 +18,7 @@ public class Greedy {
         return coloration;
     }
 
-    public static Integer   greedyChoice(HashMap<Integer, HashSet<Integer>> graph, HashMap<Integer, Integer> coloration){
+    public static Integer greedyChoice(HashMap<Integer, HashSet<Integer>> graph, HashMap<Integer, Integer> coloration){
         int maxSat = -1;
         int maxSatDegree = -1;
         int maxNode = -1;

@@ -1,9 +1,11 @@
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 
 public class Application {
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) throws IOException {
         String algo = args[0];
         String path = args[1];
         boolean p = false;
@@ -20,7 +22,7 @@ public class Application {
             t = true;
         }
 
-        HashMap<Integer, HashSet<Integer>> graph = Utils.readGraphInFile(path);
+        HashMap<Integer, HashSet<Integer>> graph = Utils.readGraphInFileGenerator(path);
         HashMap<Integer, Integer> coloration;
 
         long start = System.nanoTime();
