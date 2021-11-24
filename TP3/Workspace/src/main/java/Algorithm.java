@@ -3,19 +3,84 @@ import java.io.FileNotFoundException;
 import java.util.*;
 
 public class Algorithm {
+    static List<Integer> positions;
     static HashMap<Integer, Integer> sizes;
     static HashMap<Integer, HashSet<Integer>> friendships;
 
     public static void main(String[] args) throws FileNotFoundException {
         String path = "src/main/resources/instances/" + "66_99.0";
-        List<Integer> positions = new ArrayList<>();
-        readInstance(path);
+
+        // readInstance(path);
+
+        example(5);
+        printResults(positions, sizes, friendships);
     }
 
-    public static int unSatisfaction(List<Integer> positions){
+    public static void algorithm(HashMap<Integer, Integer> sizes, HashMap<Integer, HashSet<Integer>> friendships){
+        positions = new ArrayList<>();
+
+    }
+
+    public static void example(int nbStudents){
+        friendships = new HashMap<>();
+        sizes = new HashMap<>();
+        positions = new ArrayList<>();
+
+        for (int i = 0; i < nbStudents; i++) {
+            friendships.put(i, new HashSet<>());
+        }
+
+        for (int i = 0; i < 5; i++) {
+            positions.add(4 - i);
+            sizes.put(i,4 - i);
+        }
+
+        positions.set(3, 0);
+        positions.set(4, 1);
+        friendships.get(0).add(1);
+        friendships.get(0).add(2);
+        friendships.get(1).add(0);
+        friendships.get(2).add(0);
+        friendships.get(2).add(3);
+        friendships.get(3).add(2);
+        friendships.get(3).add(4);
+        friendships.get(4).add(3);
+    }
+
+    public static void printResults(List<Integer> positions, HashMap<Integer, Integer> sizes, HashMap<Integer, HashSet<Integer>> friendships){
+        printArrays(positions, sizes);
+        System.out.println("Conflits amitié : " + conflicts(positions, friendships));
+        System.out.println("Conflits taille : " + unSatisfaction(positions, sizes));
+    }
+
+    public static void printArrays(List<Integer> positions, HashMap<Integer, Integer> sizes){
+        List<Integer> sizesList = new ArrayList<>();
+        for (int i : positions) {
+            sizesList.add(sizes.get(i));
+        }
+
+        System.out.println("Rangée : " + positions);
+        System.out.println("Taille : " + sizesList);
+    }
+
+    public static int unSatisfaction(List<Integer> positions, HashMap<Integer, Integer> sizes){
         int counter = 0;
         for (int i = 0; i < positions.size() - 1; i++) {
-            if (!friendships.get(i).contains(i + 1)){
+            int e1 = positions.get(i);
+            int e2 = positions.get(i + 1);
+            if (sizes.get(e1) > sizes.get(e2)){
+                counter++;
+            }
+        }
+        return counter;
+    }
+
+    public static int conflicts(List<Integer> positions, HashMap<Integer, HashSet<Integer>> friendships){
+        int counter = 0;
+        for (int i = 0; i < positions.size() - 1; i++) {
+            int e1 = positions.get(i);
+            int e2 = positions.get(i + 1);
+            if (!friendships.get(e1).contains(e2)){
                 counter++;
             }
         }
@@ -25,6 +90,7 @@ public class Algorithm {
     public static void readInstance(String path) throws FileNotFoundException {
         sizes = new HashMap<>();
         friendships = new HashMap<>();
+        positions = new ArrayList<>();
         Scanner scanner = new Scanner(new File(path));
         int nbStudents = scanner.nextInt();
         int nbFriendships = scanner.nextInt();
