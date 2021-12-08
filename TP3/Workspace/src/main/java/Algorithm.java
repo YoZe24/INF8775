@@ -11,7 +11,7 @@ public class Algorithm {
     static Random rand = new Random();
 
     public static void main(String[] args) throws FileNotFoundException {
-        String path = "src/main/resources/instances/" + "558_31973.0";
+        String path = "src/main/resources/instances/" + "558_837.0";
 
         readInstance(path);
 
@@ -39,7 +39,7 @@ public class Algorithm {
         List<Integer> currPath = new ArrayList<>();
         int min = Integer.MAX_VALUE;
 
-        for(int m = 0 ; m < 1000 ; m++) {
+        for(int m = 0 ; m < 1 ; m++) {
 
             currPath = getLongestPathPossible(vMax, vMin, friendships);
             HashSet<Integer> visited = new HashSet(currPath);
@@ -47,8 +47,8 @@ public class Algorithm {
             while (currPath.size() != friendships.size()) {
                 int n = currPath.size();
 
-                int candTail = getExtremity(currPath.get(n-1), false, visited, friendships);
-                int candHead = getExtremity(currPath.get(0),true, visited, friendships);
+                int candTail = getExtremity(currPath.get(n-1), visited, friendships);
+                int candHead = getExtremity(currPath.get(0), visited, friendships);
                 if (candTail != -1) {
                     currPath.add(candTail);
                     visited.add(candTail);
@@ -60,7 +60,6 @@ public class Algorithm {
 
                 currPath = rotation(currPath, degrees, visited, vMin, friendships);
                 if (currPath == null) break;
-
 
             }
 
@@ -85,16 +84,14 @@ public class Algorithm {
         return currPath.toArray(new Integer[0]);
     }
 
-    public static int getExtremity(int ext,boolean head, HashSet<Integer> visited, HashMap<Integer,HashSet<Integer>> friendships){
-        Set<Integer> possibleHead = new HashSet(friendships.get(ext));
-        List<Integer> cands = new ArrayList<>();
-        for(int n : possibleHead){
-            if(!visited.contains(n))
-                cands.add(n);
-        }
-        if(cands.size() == 0) return -1;
+    public static int getExtremity(int ext, HashSet<Integer> visited, HashMap<Integer,HashSet<Integer>> friendships){
+        List<Integer> candidates = friendships.get(ext).stream()
+                                            .filter(node -> !visited.contains(node))
+                                            .collect(Collectors.toList());
 
-        return cands.get(rand.nextInt(cands.size()));
+        if(candidates.size() == 0) return -1;
+
+        return candidates.get(rand.nextInt(candidates.size()));
     }
 
     public static List<Integer> rotation(List<Integer> path,HashMap<Integer, Integer> degree, HashSet<Integer> visited, Integer[] vMin, HashMap<Integer,HashSet<Integer>> friendships){
@@ -148,7 +145,7 @@ public class Algorithm {
         return pathMax;
     }
 
-    public static boolean isUnreachable(HashSet<Integer> visited, int node, HashMap<Integer,HashSet<Integer>> friendships){
+    public static boolean isDeadEnd(HashSet<Integer> visited, int node, HashMap<Integer,HashSet<Integer>> friendships){
         for(int ngb: friendships.get(node)){
             if(!visited.contains(ngb)){
 
@@ -173,7 +170,6 @@ public class Algorithm {
             path.add(extend);
             visited.add(extend);
         }
-//        return path;
     }
 
     public static int greedyChoice(int toExtend, Integer[] vMin, HashSet<Integer> visited, HashMap<Integer,HashSet<Integer>> friendships){
@@ -192,7 +188,7 @@ public class Algorithm {
             if (!visited.contains(nMin) &&
                     fCurr.contains(nMin)) {
 
-//                if (!isUnreachable(visited, nMin, friendships)
+//                if (!isDeadEnd(visited, nMin, friendships)
 ////                        && rand.nextInt(1000) != 1
 //                ) {
                     return nMin;
