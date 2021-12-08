@@ -11,7 +11,7 @@ public class Algorithm {
     static Random rand = new Random();
 
     public static void main(String[] args) throws FileNotFoundException {
-        String path = "src/main/resources/instances/" + "118_2962.0";
+        String path = "src/main/resources/instances/" + "558_31973.0";
 
         readInstance(path);
 
@@ -31,27 +31,23 @@ public class Algorithm {
         HashMap<Integer,Integer> degrees = numberOfFriends(friendships);
         Integer[] degreesArr = degrees.values().toArray(new Integer[0]);
         Integer[] vMin = degrees.keySet().toArray(new Integer[0]);
-        Integer[] vMax;
-
-
         Arrays.sort(vMin, (o1, o2) -> Float.compare(degreesArr[o1-1], degreesArr[o2-1]));
-        vMax = vMin.clone();
+
+        Integer[] vMax = vMin.clone();
         Collections.reverse(Arrays.asList(vMax));
 
         List<Integer> currPath = new ArrayList<>();
         int min = Integer.MAX_VALUE;
+
         for(int m = 0 ; m < 1000 ; m++) {
 
             currPath = getLongestPathPossible(vMax, vMin, friendships);
-
             HashSet<Integer> visited = new HashSet(currPath);
 
             while (currPath.size() != friendships.size()) {
                 int n = currPath.size();
-                int end = currPath.get(n - 1);
 
-
-                int candTail = getExtremity(end, false, visited, friendships);
+                int candTail = getExtremity(currPath.get(n-1), false, visited, friendships);
                 int candHead = getExtremity(currPath.get(0),true, visited, friendships);
                 if (candTail != -1) {
                     currPath.add(candTail);
@@ -65,93 +61,6 @@ public class Algorithm {
                 currPath = rotation(currPath, degrees, visited, vMin, friendships);
                 if (currPath == null) break;
 
-                //                int ngbMax = 0;
-                //                int ngbNode = -1;
-                //
-                //                for (int ngb : friendships.get(end)) {
-                //                    if (degrees.get(ngb) > ngbMax && currPath.indexOf(ngb) < n-2 && !rotationned.contains(ngb)) {
-                //                        ngbMax = degrees.get(ngb);
-                //                        ngbNode = ngb;
-                //                    }
-                //                    if(ngbNode != -1)
-                //                        rotationned.add(ngbNode);
-                //                }
-                //                if(ngbNode == -1){
-                //                    if(!rotationned.contains(currPath.get(0))){
-                //                        rotationned.add(currPath.get(0));
-                //                        Collections.reverse(currPath);
-                //                        continue;
-                //                    }
-                //                    else
-                //                        break;
-                //                }
-
-                //                System.out.println(rotationned);
-                //                System.out.println("end : " + end + ", Ngb ind : " + ngbNode + " currsize : "+currPath.size());
-                //                System.out.println("Before rotation : " + currPath);
-                //
-                //                List<Integer> toReverse;
-                //                int posNgbInd;
-                //
-                //                if (ngbNode == currPath.get(0)) {
-                //                    ngbMax = 0;
-                //
-                //                    int maxNextHead = 0;
-                //                    int nextHead;
-                //
-                //                    for (int ni : notIn) {
-                //                        if (degrees.get(ni) > ngbMax) {
-                //                            nextHead = -1;
-                //                            for(int ngNext : friendships.get(ni)){
-                //                                if(setMax.contains(ngNext)){
-                //                                    nextHead = ngNext;
-                //                                    break;
-                //                                }
-                //                            }
-                //                            if(nextHead != -1){
-                //                                ngbMax = degrees.get(ni);
-                //                                ngbNode = ni;
-                //                                maxNextHead = nextHead;
-                //                            }
-                //                        }
-                //                    }
-                //                    posNgbInd = currPath.indexOf(maxNextHead);
-                //                    List<Integer> newList = new ArrayList<>();
-                //                    newList.add(ngbNode);
-                //                    newList.addAll(currPath.subList(posNgbInd, n));
-                //                    newList.addAll(currPath.subList(0, posNgbInd));
-                //                    System.out.println("New List " + newList);
-                //                    currPath = new ArrayList<>(newList);
-                //
-                //                    setMax.add(ngbNode);
-                //                    notIn.remove(ngbNode);
-                //                }
-                //                else {
-                //
-                //                    System.out.println(ngbNode +", friends "+ friendships.get(ngbNode) + " end friend "+ friendships.get(end));
-                //                    posNgbInd = currPath.indexOf(ngbNode);
-                //                    toReverse = new ArrayList(currPath.subList(posNgbInd+1, n));
-                //                    Collections.reverse(toReverse);
-                //                    currPath = currPath.subList(0, posNgbInd+1);
-                //                    currPath.addAll(toReverse);
-                //
-                //                    System.out.println("After rotation " + currPath + " new ngb " + friendships.get(currPath.get(n - 1)));
-                //
-                //
-                //                }
-                //
-                //            }
-                //
-                //            while (true) {
-                //                extend = greedyChoice(currPath.get(currPath.size() - 1), vMin, setMax, friendships);
-                //                if (extend == -1)
-                //                    break;
-                //
-                //                System.out.println("Added " + extend);
-                //                setMax.add(extend);
-                //                currPath.add(extend);
-                //                notIn.remove(extend);
-                //            }
 
             }
 
@@ -202,12 +111,11 @@ public class Algorithm {
                                               .filter(ngb -> visited.contains(ngb))
                                               .collect(Collectors.toList());
         if(candidates.size() == 0) return null;
+
         int ngbNode = candidates.get(rand.nextInt(candidates.size()));
-        int posNgbInd = path.indexOf(ngbNode);
+        path = reverseFromIndex(path,path.indexOf(ngbNode)+1);
 
-        path = reverseFromIndex(path,posNgbInd+1);
-
-        path = greedyPath(path, visited, vMin, friendships);
+        greedyPath(path, visited, vMin, friendships);
 
         return path;
 
@@ -216,24 +124,23 @@ public class Algorithm {
     public static List<Integer> reverseFromIndex(List<Integer> list, int index){
         List <Integer> toReverse = new ArrayList(list.subList(index, list.size()));
         Collections.reverse(toReverse);
-        list= new ArrayList<>(list.subList(0, index));
+        list = new ArrayList<>(list.subList(0, index));
         list.addAll(toReverse);
         return list;
     }
 
     public static List<Integer> getLongestPathPossible(Integer[] vMax,Integer[] vMin, HashMap<Integer,HashSet<Integer>> friendships){
         List<Integer> pathMax = new ArrayList<>();
-        for(int i = 0 ; i < vMax.length ; i++) {
-            if(vMax[i] == vMax[0]) {
-                List<Integer> path = new ArrayList<>(Arrays.asList(vMax[i]));
+        for (Integer max : vMax) {
+            if (max == vMax[0]) {
+                List<Integer> path = new ArrayList<>(Arrays.asList(max));
                 HashSet<Integer> visited = new HashSet<>(path);
 
-                path = greedyPath(path, visited , vMin, friendships);
-
+                greedyPath(path, visited, vMin, friendships);
                 if (path.size() > pathMax.size()) {
                     pathMax = new ArrayList(path);
                 }
-            }else{
+            } else {
                 break;
             }
         }
@@ -243,7 +150,6 @@ public class Algorithm {
 
     public static boolean isUnreachable(HashSet<Integer> visited, int node, HashMap<Integer,HashSet<Integer>> friendships){
         for(int ngb: friendships.get(node)){
-
             if(!visited.contains(ngb)){
 
                 int cptNgbOfNgb = 0;
@@ -258,12 +164,7 @@ public class Algorithm {
         return false;
     }
 
-    public static List<Integer> greedyPath(List<Integer> path, HashSet<Integer> visited,Integer[] vMin, HashMap<Integer, HashSet<Integer>> friendships){
-//        HashSet<Integer> visited = new HashSet<>();
-//        List<Integer> path = new ArrayList<>();
-//        path.add(start);
-//        visited.add(start);
-
+    public static void greedyPath(List<Integer> path, HashSet<Integer> visited,Integer[] vMin, HashMap<Integer, HashSet<Integer>> friendships){
         while (true) {
             int extend = greedyChoice(path.get(path.size()-1),vMin,visited, friendships);
             if(extend == -1)
@@ -271,9 +172,8 @@ public class Algorithm {
 
             path.add(extend);
             visited.add(extend);
-
         }
-        return path;
+//        return path;
     }
 
     public static int greedyChoice(int toExtend, Integer[] vMin, HashSet<Integer> visited, HashMap<Integer,HashSet<Integer>> friendships){
