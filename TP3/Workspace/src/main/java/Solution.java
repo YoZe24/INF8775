@@ -8,12 +8,77 @@ public class Solution {
     static HashMap<Integer, HashSet<Integer>> friendships;
 
     public static void main(String[] args) throws FileNotFoundException {
-        String path = args[0];
-        boolean p = args.length == 2;
+        // String path = args[0];
+        // boolean p = args.length == 2;
+        boolean p = true;
+        String path = "src/main/resources/instances/" + "558_63109.1";
 
         readInstance(path);
 
         localSearch(friendships, sizes, p);
+    }
+
+    public static List<Integer> rotation(HashMap<Integer, HashSet<Integer>> friendships, HashMap<Integer, Integer> sizes, List<Integer> positions){
+        int last = positions.get(positions.size() - 1);
+        List<Integer> neighbors = new ArrayList<>(friendships.get(last));
+
+        Random rand = new Random();
+        int neighbor = neighbors.get(rand.nextInt(neighbors.size()));
+
+        List<Integer> newList = new ArrayList<>();
+        for (int item : positions) {
+            newList.add(item);
+            if (neighbor == item) break;
+        }
+
+        for (int i = positions.size() - 1; i > 0; i--) {
+            int item = positions.get(i);
+            if (item == neighbor) break;
+            newList.add(item);
+        }
+
+        return newList;
+    }
+
+    public static List<List<Integer>> puzzles(HashMap<Integer, HashSet<Integer>> friendships, HashMap<Integer, Integer> sizes, List<Integer> positions){
+        List<List<Integer>> solutions = new ArrayList<>();
+        int last = positions.get(positions.size() - 1);
+        List<Integer> neighbors = new ArrayList<>(friendships.get(last));
+        for (int neigh : neighbors) {
+            int posNeigh = positions.indexOf(neigh);
+            if (positions.size() - 1 - posNeigh > 1){
+                int posDude1 = posNeigh + 1;
+                int dude1 = positions.get(posDude1);
+                List<Integer> neighborsDude1 = new ArrayList<>(friendships.get(dude1));
+
+                for (int candidate : neighborsDude1) {
+                    int posCandidate = positions.indexOf(candidate);
+                    int posNextCandidate = posCandidate + 1;
+                    if (posCandidate < posNeigh){
+                        if (friendships.get(positions.get(posNextCandidate)).contains(last)){
+                            List<Integer> newList = new ArrayList<>();
+                            for (int i = 0; i <= posCandidate; i++) {
+                                newList.add(positions.get(i));
+                            }
+                            for (int i = posDude1; i < positions.size(); i++) {
+                                newList.add(positions.get(i));
+                            }
+
+                            newList.add(positions.get(posNeigh));
+
+                            for (int i = posCandidate + 1; i < posNeigh; i++) {
+                                newList.add(positions.get(i));
+                            }
+
+                            if (conflicts(newList, friendships) == 0){
+                                solutions.add(newList);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return solutions;
     }
 
     public static List<Integer> localSearch(HashMap<Integer, HashSet<Integer>> friendships, HashMap<Integer, Integer> sizes, boolean p){
@@ -31,41 +96,121 @@ public class Solution {
                 System.out.println(min);
             }
         }
-        int i = 0;
+//        while (unSat > 0){
+//            int minSat = Integer.MAX_VALUE;
+//            List<Integer> curBest = new ArrayList<>();
+//            List<List<Integer>> puzzles = puzzles(friendships, sizes, bestSol);
+//            if (puzzles.size() > 0){
+//                for (List<Integer> list : puzzles) {
+//                    int curSat = unSatisfaction(list, sizes);
+//                    if (curSat < minSat){
+//                        minSat = curSat;
+//                        curBest = list;
+//                    }
+//                }
+//                System.out.println(curBest.size());
+//                System.out.println(minSat);
+//                System.out.println("conflits : " + conflicts(curBest, friendships));
+//                Random rand = new Random();
+//                int rnd = rand.nextInt(10);
+//                if (rnd == 0 || minSat < unSat){
+//                    unSat = minSat;
+//                    bestSol = curBest;
+//                }
+//            }
+//        }
+        Random rand = new Random();
         while (unSat > 0){
-            for (int j = i + 1; j < bestSol.size(); j++) {
-                List<Integer> modified = new ArrayList<>(bestSol);
-                modified.set(i,bestSol.get(j));
-                modified.set(j,bestSol.get(i));
-                if (conflicts(modified, friendships) == 0) {
-                    int unSatOld = unSatisfaction(bestSol, sizes);
-                    int unSatNew = unSatisfaction(modified, sizes);
-
-                    Random rand = new Random();
-                    int rnd = rand.nextInt(2);
-                    if (rnd == 0 || unSatNew < unSatOld){
-                        bestSol = modified;
-                        unSat = unSatisfaction(bestSol, sizes);
-                        if (min > unSat) {
-                            min = unSat;
-                            if (p){
-                                printSolution(bestSol);
-                            }
-                            else{
-                                System.out.flush();
-                                System.out.println(min);
-                            }
+//            int reverse = rand.nextInt(10000000);
+//            if (reverse == 0){
+//                Collections.reverse(bestSol);
+//                unSat = unSatisfaction(bestSol, sizes);
+//            }
+            int minSat = Integer.MAX_VALUE;
+            List<Integer> curBest = new ArrayList<>();
+            List<List<Integer>> puzzles = puzzles(friendships, sizes, bestSol);
+            if (puzzles.size() > 0){
+                for (List<Integer> list : puzzles) {
+                    int curSat = unSatisfaction(list, sizes);
+                    if (curSat < minSat){
+                        minSat = curSat;
+                        curBest = list;
+                    }
+                }
+                int rnd = rand.nextInt(4);
+                if (rnd == 0 || minSat < unSat){
+                    unSat = minSat;
+                    bestSol = curBest;
+                    if (min > unSat) {
+                        min = unSat;
+                        if (p){
+                            System.out.println(min);
+                            // printSolution(bestSol);
+                        }
+                        else{
+                            System.out.flush();
+                            System.out.println(min);
                         }
                     }
                 }
             }
-            if (i == bestSol.size()) {
-                i = 0;
-            }
-            else{
-                i++;
+
+            List<Integer> candidate = rotation(friendships, sizes, bestSol);
+            int unSatCandidate = unSatisfaction(candidate, sizes);
+            int rnd = rand.nextInt(25);
+            if (rnd == 0 || unSatCandidate < unSat){
+                unSat = unSatCandidate;
+                bestSol = candidate;
+                if (min > unSat) {
+                    min = unSat;
+                    if (p){
+                        System.out.println(min);
+                        // printSolution(bestSol);
+                    }
+                    else{
+                        System.out.flush();
+                        System.out.println(min);
+                    }
+                }
             }
         }
+//        int i = 0;
+//        while (unSat > 0){
+//            for (int j = i + 1; j < bestSol.size(); j++) {
+//                List<Integer> modified = new ArrayList<>(bestSol);
+//                modified.set(i,bestSol.get(j));
+//                modified.set(j,bestSol.get(i));
+//                if (conflicts(modified, friendships) == 0) {
+//                    int unSatOld = unSatisfaction(bestSol, sizes);
+//                    int unSatNew = unSatisfaction(modified, sizes);
+//
+//                    Random rand = new Random();
+//                    int rnd = rand.nextInt(2);
+//                    if (rnd == 0 || unSatNew < unSatOld){
+//                        bestSol = modified;
+//                        unSat = unSatisfaction(bestSol, sizes);
+//                        if (min > unSat) {
+//                            min = unSat;
+//                            if (p){
+//                                System.out.println(unSat);
+//                                // printSolution(bestSol);
+//                            }
+//                            else{
+//                                System.out.flush();
+//                                System.out.println(min);
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//
+//            if (i == bestSol.size()) {
+//                i = 0;
+//            }
+//            else{
+//                i++;
+//            }
+//        }
         return bestSol;
     }
 
