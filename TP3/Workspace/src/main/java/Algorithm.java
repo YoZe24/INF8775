@@ -22,7 +22,7 @@ public class Algorithm {
 //        greedy(sizes,friendships);
 
         Integer[] ham = HybridHAM(friendships);
-        HashSet<Integer> testHam = new HashSet<>(Arrays.asList(ham));
+    HashSet<Integer> testHam = new HashSet<>(Arrays.asList(ham));
         System.out.println("Size end "+testHam.size());
         System.out.println(conflicts(Arrays.asList(ham),friendships));
     }
@@ -175,15 +175,6 @@ public class Algorithm {
     public static int greedyChoice(int toExtend, Integer[] vMin, HashSet<Integer> visited, HashMap<Integer,HashSet<Integer>> friendships){
 
         HashSet<Integer> fCurr = friendships.get(toExtend);
-//        int sizeMin = Integer.MAX_VALUE;
-//        int nNode = -1;
-//        for(int n : fCurr){
-//            if(!visited.contains(n) && sizes.get(n) < sizeMin){
-//                sizeMin = n;
-//                nNode = n;
-//            }
-//        }
-//        return nNode;
         for (int nMin : vMin) {
             if (!visited.contains(nMin) &&
                     fCurr.contains(nMin)) {

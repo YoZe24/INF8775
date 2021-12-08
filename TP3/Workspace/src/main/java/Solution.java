@@ -10,10 +10,8 @@ public class Solution {
     static Random rand = new Random();
 
     public static void main(String[] args) throws FileNotFoundException {
-        // String path = args[0];
-        // boolean p = args.length == 2;
-        boolean p = true;
-        String path = "src/main/resources/instances/" + "558_837.0";
+        String path = args[0];
+        boolean p = args.length == 2;
 
         readInstance(path);
 
@@ -227,53 +225,41 @@ public class Solution {
         Collections.reverse(Arrays.asList(vMax));
 
         List<Integer> currPath = new ArrayList<>();
-        int min = Integer.MAX_VALUE;
-
-        for(int m = 0 ; m < 1000 ; m++) {
-
-            currPath = getLongestPathPossible(vMax, vMin, friendships);
-            HashSet<Integer> visited = new HashSet(currPath);
-
-            while (currPath.size() != friendships.size()) {
-                int n = currPath.size();
-
-                int candTail = getExtremity(currPath.get(n-1), false, visited, friendships);
-                int candHead = getExtremity(currPath.get(0),true, visited, friendships);
-                if (candTail != -1) {
-                    currPath.add(candTail);
-                    visited.add(candTail);
-                }
-                if (candHead != -1) {
-                    currPath.add(0, candHead);
-                    visited.add(candHead);
-                }
-
-                currPath = rotation(currPath, degrees, visited, vMin, friendships);
-                if (currPath == null) break;
 
 
+        currPath = getLongestPathPossible(vMax, vMin, friendships);
+        HashSet<Integer> visited = new HashSet(currPath);
+
+        while (currPath.size() != friendships.size()) {
+            int n = currPath.size();
+
+            int candTail = getExtremity(currPath.get(n-1),  visited, friendships);
+            int candHead = getExtremity(currPath.get(0), visited, friendships);
+            if (candTail != -1) {
+                currPath.add(candTail);
+                visited.add(candTail);
             }
-            min = Math.min(min,unSatisfaction(currPath,sizes));
-
-            for (int i = 0; i < 100; i++) {
-                currPath = rotation(currPath, degrees, visited, vMin, friendships);
-                if(i % 10 == 0) Collections.reverse(currPath);
-                min = Math.min(min,unSatisfaction(currPath,sizes));
+            if (candHead != -1) {
+                currPath.add(0, candHead);
+                visited.add(candHead);
             }
+
+            currPath = rotation(currPath, degrees, visited, vMin, friendships);
+            if (currPath == null) break;
+
+
         }
         return currPath.toArray(new Integer[0]);
     }
 
-    public static int getExtremity(int ext,boolean head, HashSet<Integer> visited, HashMap<Integer,HashSet<Integer>> friendships){
-        Set<Integer> possibleHead = new HashSet(friendships.get(ext));
-        List<Integer> cands = new ArrayList<>();
-        for(int n : possibleHead){
-            if(!visited.contains(n))
-                cands.add(n);
-        }
-        if(cands.size() == 0) return -1;
+    public static int getExtremity(int ext, HashSet<Integer> visited, HashMap<Integer,HashSet<Integer>> friendships){
+        List<Integer> candidates = friendships.get(ext).stream()
+                .filter(node -> !visited.contains(node))
+                .collect(Collectors.toList());
 
-        return cands.get(rand.nextInt(cands.size()));
+        if(candidates.size() == 0) return -1;
+
+        return candidates.get(rand.nextInt(candidates.size()));
     }
 
     public static List<Integer> rotation(List<Integer> path,HashMap<Integer, Integer> degree, HashSet<Integer> visited, Integer[] vMin, HashMap<Integer,HashSet<Integer>> friendships){
@@ -339,10 +325,28 @@ public class Solution {
         HashSet<Integer> fCurr = friendships.get(toExtend);
         for (int nMin : vMin) {
             if (!visited.contains(nMin) && fCurr.contains(nMin)) {
+//                if (!isDeadEnd(visited, nMin, friendships)) {
                 return nMin;
+//                }
             }
         }
         return -1;
+    }
+
+    public static boolean isDeadEnd(HashSet<Integer> visited, int node, HashMap<Integer,HashSet<Integer>> friendships){
+        for(int ngb: friendships.get(node)){
+            if(!visited.contains(ngb)){
+
+                int cptNgbOfNgb = 0;
+                for(int ngbOfNgb: friendships.get(ngb)){
+                    if(!visited.contains(ngbOfNgb)){
+                        if(++cptNgbOfNgb == 2) break;
+                    }
+                }
+                if(cptNgbOfNgb < 2) return true;
+            }
+        }
+        return false;
     }
 
     public static List<Integer> insertAtPosition(List<Integer> positions, int child, int index){
